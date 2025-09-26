@@ -15,12 +15,19 @@
 @implementation InstagramStories
 RCT_EXPORT_MODULE();
 
-- (void)openInstagramWithItems:(NSDictionary *)items urlScheme:(NSURL *)urlScheme resolve:(RCTPromiseResolveBlock)resolve {
+- (void)openInstagramWithItems:(NSDictionary *)items urlScheme:(NSURL *)urlScheme reject:(RCTPromiseRejectBlock)reject resolve:(RCTPromiseResolveBlock)resolve {
     // Putting dictionary of options inside an array
     NSArray *pasteboardItems = @[items];
     NSDictionary *pasteboardOptions = @{UIPasteboardOptionExpirationDate : [[NSDate date] dateByAddingTimeInterval:60 * 5]};
 
     [[UIPasteboard generalPasteboard] setItems:pasteboardItems options:pasteboardOptions];
+    
+    if (![[UIApplication sharedApplication] canOpenURL:urlScheme]) {
+        NSError* error = [self fallbackInstagram];
+        reject(@"cannot open URL",@"cannot open URL",error);
+        return;
+    }
+    
     [[UIApplication sharedApplication] openURL:urlScheme options:@{} completionHandler:nil];
 
     resolve(@[@true, @""]);
@@ -31,7 +38,7 @@ RCT_EXPORT_MODULE();
     resolve:(RCTPromiseResolveBlock)resolve {
 
     NSURL *urlScheme = [NSURL URLWithString:[NSString stringWithFormat:@"instagram-stories://share?source_application=%@", options[@"appId"]]];
-
+    
     // Create dictionary of assets and attribution
     NSMutableDictionary *items = [NSMutableDictionary dictionary];
 
@@ -86,11 +93,25 @@ RCT_EXPORT_MODULE();
             NSData *videoData = [NSData dataWithContentsOfURL:backgroundVideoURL];
             if (videoData) {
                 [items setObject:videoData forKey:@"com.instagram.sharedSticker.backgroundVideo"];
-                [self openInstagramWithItems:items urlScheme:urlScheme resolve:resolve];
+                [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
             } else {
                 NSLog(@"Failed to read local video file");
-                [self openInstagramWithItems:items urlScheme:urlScheme resolve:resolve];
+                [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
             }
+        } else if ([backgroundVideoURL.scheme isEqualToString:@"http"] || [backgroundVideoURL.scheme isEqualToString:@"https"]) {
+            NSURLSessionDataTask *downloadTask = [[NSURLSession sharedSession] dataTaskWithURL:backgroundVideoURL completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (data && !error) {
+                        [items setObject:data forKey:@"com.instagram.sharedSticker.backgroundVideo"];
+                        [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
+                    } else {
+                        NSLog(@"Failed to download remote video file %@", error.localizedDescription);
+                        [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
+                    }
+                });
+            }];
+            
+            [downloadTask resume];
         } else {
             NSString *urlString = backgroundVideoURL.absoluteString;
             NSURLComponents *components = [[NSURLComponents alloc] initWithString:urlString];
@@ -124,22 +145,22 @@ RCT_EXPORT_MODULE();
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 if (video) {
                                     [items setObject:video forKey:@"com.instagram.sharedSticker.backgroundVideo"];
-                                    [self openInstagramWithItems:items urlScheme:urlScheme resolve:resolve];
+                                    [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
                                 } else {
                                     NSLog(@"Failed to convert video asset to NSData");
-                                    [self openInstagramWithItems:items urlScheme:urlScheme resolve:resolve];
+                                    [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
                                 }
                             });
                         }
                     }];
                 } else {
                     NSLog(@"Could not find asset with ID: %@", assetId);
-                    [self openInstagramWithItems:items urlScheme:urlScheme resolve:resolve];
+                    [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
                 }
             }
         }
     } else {
-        [self openInstagramWithItems:items urlScheme:urlScheme resolve:resolve];
+        [self openInstagramWithItems:items urlScheme:urlScheme reject:reject resolve:resolve];
     }
 }
 
