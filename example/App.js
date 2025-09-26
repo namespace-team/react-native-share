@@ -326,6 +326,24 @@ const App = () => {
     }
   };
 
+  const shareToLINE = async () => {
+    const shareOptions = {
+      message: 'Example LINE',
+      url: 'https://line.me',
+      social: Share.Social.LINE,
+    };
+
+    try {
+      const ShareResponse = await Share.shareSingle(shareOptions);
+      console.log('Response =>', ShareResponse);
+      setResult(JSON.stringify(ShareResponse, null, 2));
+    } catch (error) {
+      console.log('Error =>', error);
+      setResult('error: '.concat(getErrorString(error)));
+    }
+  };
+  
+
   const shareToGooglePlus = async () => {
     const shareOptions = {
       message: 'Example Google Plus',
@@ -443,6 +461,9 @@ const App = () => {
         </View>
         <View style={styles.button}>
           <Button onPress={shareToTwitter} title="Share to Twitter" />
+        </View>
+          <View style={styles.button}>
+          <Button onPress={shareToLINE} title="Share to Line" />
         </View>
         <View style={styles.button}>
           <Button onPress={shareToGooglePlus} title="Share to Google Plus" />

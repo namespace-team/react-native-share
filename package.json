@@ -57,7 +57,7 @@
     "pre-commit": "^1.2.2",
     "prettier": "^3.0.3",
     "react": "^18.2.0",
-    "react-native": "0.72.6",
+    "react-native": "0.72.9",
     "react-native-builder-bob": "^0.23.1",
     "react-native-windows": "^0.72.19",
     "react-test-renderer": "^18.2.0",

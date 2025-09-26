@@ -7,6 +7,7 @@ export interface Spec extends TurboModule {
     FACEBOOKSTORIES?: string;
     TWITTER?: string;
     GOOGLEPLUS?: string;
+    LINE?: string;
     WHATSAPP?: string;
     INSTAGRAM?: string;
     INSTAGRAMSTORIES?: string;

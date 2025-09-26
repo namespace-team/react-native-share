@@ -8,6 +8,7 @@ export enum Social {
   Instagram = 'instagram',
   InstagramStories = 'instagramstories',
   Googleplus = 'googleplus',
+  Line = 'line',
   Email = 'email',
   Pinterest = 'pinterest',
   Linkedin = 'linkedin',

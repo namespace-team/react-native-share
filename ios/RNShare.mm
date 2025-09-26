@@ -23,6 +23,7 @@
 #import "MessengerShare.h"
 #import "SmsShare.h"
 #import "DiscordShare.h"
+#import "LINEShare.h"
 #import "RNShareActivityItemSource.h"
 #import "RNShareUtils.h"
 
@@ -98,6 +99,7 @@ RCT_EXPORT_MODULE()
     @"VIBER": @"viber",
     @"SMS": @"sms",
     @"DISCORD": @"discord",
+    @"LINE": @"line",
     @"SHARE_BACKGROUND_IMAGE": @"shareBackgroundImage",
     @"SHARE_BACKGROUND_VIDEO": @"shareBackgroundVideo",
     @"SHARE_STICKER_IMAGE": @"shareStickerImage",
@@ -179,6 +181,10 @@ RCT_EXPORT_METHOD(shareSingle:(NSDictionary *)options
         } else if([social isEqualToString:@"discord"]) {
             NSLog(@"TRY OPEN discord");
             DiscordShare *shareCtl = [[DiscordShare alloc] init];
+            [shareCtl shareSingle:options reject: reject resolve: resolve];
+        } else if([social isEqualToString:@"line"]) {
+            NSLog(@"TRY OPEN LINE");
+            LINEShare *shareCtl = [[LINEShare alloc] init];
             [shareCtl shareSingle:options reject: reject resolve: resolve];
         }
     } else {
