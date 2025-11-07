@@ -1,7 +1,7 @@
 {
   "name": "@namespace-team/react-native-share",
   "description": "Social share, sending simple data to other apps.",
-  "version": "12.3.0",
+  "version": "12.3.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/@namespace-team/react-native-share.git"
@@ -105,12 +105,6 @@
     "ci:publish": "npx semantic-release",
     "prepare": "bob build && yarn build:expo-plugin",
     "windows": "react-native run-windows"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
-      "pre-commit": "yarn typescript && lint-staged"
-    }
   },
   "release": {
     "branches": [
